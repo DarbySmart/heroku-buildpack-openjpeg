@@ -1,0 +1,50 @@
+#!/bin/bash
+
+indent() {
+  sed -u 's/^/       /'
+}
+
+echo "-----> Install OpenJPEG"
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+VENDOR_DIR="$BUILD_DIR/vendor"
+mkdir -p $VENDOR_DIR
+INSTALL_DIR="$VENDOR_DIR/openjpeg"
+mkdir -p $INSTALL_DIR
+CMAKE_VERSION="${CMAKE_VERSION:-3.8.1}"
+OPEN_JPEG_VERSION="${OPEN_JPEG_VERSION:-2.1.2}"
+
+CMAKE_DIR=cmake-$CMAKE_VERSION-Linux-x86_64
+CMAKE_URL=https://cmake.org/files/v3.8/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz
+echo "-----> Downloading CMake from $CMAKE_URL"
+wget $CMAKE_URL -P $BUILD_DIR | indent
+if [ ! -f $BUILD_DIR/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz ]; then
+  echo "Error: Unable to download CMake" | indent
+  ls $BUILD_DIR | indent
+  exit 1;
+fi
+tar xvf $BUILD_DIR/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz | indent
+
+OPEN_JPEG_FILE="v$OPEN_JPEG_VERSION.tar.gz"
+OPEN_JPEG_DIR="openjpeg-$OPEN_JPEG_VERSION"
+OPEN_JPEG_URL="https://github.com/uclouvain/openjpeg/archive/v$OPEN_JPEG_VERSION.tar.gz"
+
+echo "-----> Downloading OpenJPEG from $OPEN_JPEG_URL"
+wget $OPEN_JPEG_URL -P $BUILD_DIR | indent
+
+echo "-----> Extracting OpenJPEG from $BUILD_DIR/$OPEN_JPEG_FILE"
+if [ ! -f $BUILD_DIR/$OPEN_JPEG_FILE ]; then
+  echo "Error: Unable to download OpenJPEG" | indent
+  ls $BUILD_DIR | indent
+  exit 1;
+fi
+tar xvf $BUILD_DIR/$OPEN_JPEG_FILE | indent
+
+echo "-----> Building OpenJPEG"
+cd $OPEN_JPEG_DIR
+mkdir build
+cd build
+../../$CMAKE_DIR/bin/cmake ..
+make && make install
+
