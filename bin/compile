@@ -10,8 +10,10 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 VENDOR_DIR="$BUILD_DIR/vendor"
 mkdir -p $VENDOR_DIR
-INSTALL_DIR="$VENDOR_DIR/openjpeg"
-mkdir -p $INSTALL_DIR
+CMAKE_INSTALL_DIR="$VENDOR_DIR/cmake"
+mkdir -p $CMAKE_INSTALL_DIR
+OPEN_JPEG_INSTALL_DIR="$VENDOR_DIR/openjpeg"
+mkdir -p $OPEN_JPEG_INSTALL_DIR
 CMAKE_VERSION="${CMAKE_VERSION:-3.8.1}"
 OPEN_JPEG_VERSION="${OPEN_JPEG_VERSION:-2.1.2}"
 
@@ -24,7 +26,7 @@ if [ ! -f $BUILD_DIR/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz ]; then
   ls $BUILD_DIR | indent
   exit 1;
 fi
-tar xvf $BUILD_DIR/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz | indent
+tar xvf $BUILD_DIR/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz -C $CMAKE_INSTALL_DIR | indent
 
 OPEN_JPEG_FILE="v$OPEN_JPEG_VERSION.tar.gz"
 OPEN_JPEG_DIR="openjpeg-$OPEN_JPEG_VERSION"
@@ -45,6 +47,6 @@ echo "-----> Building OpenJPEG"
 cd $OPEN_JPEG_DIR
 mkdir build
 cd build
-../../$CMAKE_DIR/bin/cmake ..
+$CMAKE_INSTALL_DIR/cmake-$CMAKE_VERSION-Linux-x86_64/bin/cmake -DCMAKE_INSTALL_PREFIX=$OPEN_JPEG_INSTALL_DIR ..
 make && make install
 
